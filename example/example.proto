@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package kratos.example;
+
+option go_package = "kratos-cli-boost/api/kratos/example;example";
+
+// 示例服务
+service Greeter {
+  // 发送问候
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+}
+
+// 请求消息
+message HelloRequest {
+  string name = 1;
+}
+
+// 响应消息
+message HelloReply {
+  string message = 1;
+}
