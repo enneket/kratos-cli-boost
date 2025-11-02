@@ -1,4 +1,4 @@
-module kratos_cli_boost
+module github.com/enneket/kratos_cli_boost
 
 go 1.24.0
 
