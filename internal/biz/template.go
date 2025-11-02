@@ -1,83 +1,52 @@
 package biz
 
 var bizTemplate = `
-{{- /* go-kratos biz 层模板，包含业务接口与实现 */ -}}
 package biz
 
 import (
 	"context"
 
-	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	
-	pb "{{ .ProtoPackage }}" // proto 生成的 PB 包路径
 )
 
-// {{ .Service }}UseCase 定义业务接口（包含核心业务方法）
-type {{ .Service }}UseCase interface {
+{{ range .Entities }}
+// {{ .Name }} 领域实体（业务核心数据结构）
+type {{ .Name }} struct {
+	{{- range .Fields }}
+	{{ .FieldName }} {{ .FieldType }} // {{ .Comment }}
+	{{- end }}
+}
+{{- end }}
+
+type {{ .ServiceName }}Repo interface {
 	{{- range .Methods }}
-	// {{ .Name }} 处理 {{ .Name }} 业务逻辑
-	{{ .Name }}(ctx context.Context, req *pb.{{ .Request }}) (*pb.{{ .Reply }}, error)
+	// {{ .Comment }}
+	{{ .MethodName }}(ctx context.Context{{- if .ParamName }}, {{ .ParamName }} {{ .ParamType }} {{ end }}) ({{ .ReturnType }}, error) 
 	{{- end }}
 }
 
-// {{ .Service }}UseCaseImpl 业务接口实现
-type {{ .Service }}UseCaseImpl struct {
-	// 依赖注入：领域仓库（操作领域实体）
-	repo {{ .DomainPackage }}.{{ .Service }}Repo
-	// 日志组件
-	log *log.Helper
+type {{ .ServiceName }}UseCase struct {
+	repo {{ .ServiceName }}Repo       // 依赖 Repo 接口（依赖抽象）
+	log  *log.Helper                  // 日志组件
 }
 
-// New{{ .Service }}UseCase 创建业务实例
-func New{{ .Service }}UseCase(repo {{ .DomainPackage }}.{{ .Service }}Repo, logger log.Logger) {{ .Service }}UseCase {
-	return &{{ .Service }}UseCaseImpl{
+func New{{ .ServiceName }}UseCase(repo {{ .ServiceName }}Repo, logger log.Logger) *{{ .ServiceName }}UseCase {
+	return &{{ .ServiceName }}UseCase{
 		repo: repo,
-		log:  log.NewHelper(logger),
+		log:  log.NewHelper(log.With(logger, "module", "usecase/{{ .ServiceName | toLower }}")),
 	}
 }
 
-{{- /* 遍历方法生成业务实现框架 */ -}}
-{{- range .Methods }}
-// {{ .Name }} 实现 {{ .Name }} 业务逻辑
-func (uc *{{ .Service }}UseCaseImpl) {{ .Name }}(ctx context.Context, req *pb.{{ .Request }}) (*pb.{{ .Reply }}, error) {
-	// 1. 参数校验
-	if err := uc.validate{{ .Name }}Req(req); err != nil {
-		uc.log.Errorf("{{ .Name }} request validate failed: %v", err)
+{{ range .Methods }}
+// {{ .Comment }}
+func (uc *{{ $.ServiceName }}UseCase) {{ .MethodName }}(ctx context.Context{{- if .ParamName }}, {{ .ParamName }} {{ .ParamType }} {{ end }}) ({{ .ReturnType }}, error) {
+	data, err := uc.repo.{{ .MethodName }}(ctx{{- if .ParamName }}, {{ .ParamName }}{{ end }})
+	if err != nil {
+		uc.log.Errorf("{{ .MethodName }} repo operation failed: %v", err)
 		return nil, err
 	}
 
-	// 2. 转换 PB 请求为领域实体（如需）
-	// entity := {{ .DomainPackage }}.Convert{{ .Request }}ToEntity(req)
-
-	// 3. 调用领域仓库处理核心业务（示例）
-	// resultEntity, err := uc.repo.{{ .Name }}(ctx, entity)
-	// if err != nil {
-	// 	uc.log.Errorf("{{ .Name }} repo failed: %v", err)
-	// 	return nil, errors.FromError(err)
-	// }
-
-	// 4. 转换领域实体为 PB 响应（如需）
-	resp := &pb.{{ .Reply }}{
-		// 填充响应字段，示例：
-		// Id: resultEntity.Id,
-		// Message: "success",
-	}
-
-	uc.log.Infof("{{ .Name }} business handled successfully, req: %+v, resp: %+v", req, resp)
-	return resp, nil
-}
-
-// validate{{ .Name }}Req 校验 {{ .Name }} 请求参数
-func (uc *{{ .Service }}UseCaseImpl) validate{{ .Name }}Req(req *pb.{{ .Request }}) error {
-	if req == nil {
-		return errors.BadRequest("INVALID_REQUEST", "request is nil")
-	}
-	// 补充具体参数校验逻辑，例如：
-	// if req.Id == "" {
-	// 	return errors.BadRequest("INVALID_PARAM", "id is required")
-	// }
-	return nil
+	return data, nil
 }
 {{- end }}
 `

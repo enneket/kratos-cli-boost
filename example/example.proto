@@ -1,21 +1,33 @@
 syntax = "proto3";
 
-package kratos.example;
+package example;
 
-option go_package = "kratos-cli-boost/api/kratos/example;example";
+option go_package = "kratos_cli_boost/example;example";
+option java_multiple_files = true;
+option java_package = "example";
 
-// 示例服务
-service Greeter {
-  // 发送问候
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
+service Example {
+	rpc CreateExample (CreateExampleRequest) returns (CreateExampleReply);
+	rpc UpdateExample (UpdateExampleRequest) returns (UpdateExampleReply);
+	rpc DeleteExample (DeleteExampleRequest) returns (DeleteExampleReply);
+	rpc GetExample (GetExampleRequest) returns (GetExampleReply);
+	rpc ListExample (ListExampleRequest) returns (ListExampleReply);
 }
 
-// 请求消息
-message HelloRequest {
-  string name = 1;
+message CreateExampleRequest {
+	int32 id = 1;
+	string name = 2;
 }
+message CreateExampleReply {}
 
-// 响应消息
-message HelloReply {
-  string message = 1;
-}
+message UpdateExampleRequest {}
+message UpdateExampleReply {}
+
+message DeleteExampleRequest {}
+message DeleteExampleReply {}
+
+message GetExampleRequest {}
+message GetExampleReply {}
+
+message ListExampleRequest {}
+message ListExampleReply {}
