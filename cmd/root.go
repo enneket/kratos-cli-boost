@@ -3,11 +3,11 @@ package cmd
 import (
 	"os"
 
-	"github.com/enneket/kratos_cli_boost/internal/add"
-	"github.com/enneket/kratos_cli_boost/internal/biz"
-	"github.com/enneket/kratos_cli_boost/internal/client"
-	"github.com/enneket/kratos_cli_boost/internal/data"
-	"github.com/enneket/kratos_cli_boost/internal/server"
+	"github.com/enneket/kratos-cli-boost/internal/add"
+	"github.com/enneket/kratos-cli-boost/internal/biz"
+	"github.com/enneket/kratos-cli-boost/internal/client"
+	"github.com/enneket/kratos-cli-boost/internal/data"
+	"github.com/enneket/kratos-cli-boost/internal/server"
 
 	"github.com/spf13/cobra"
 )

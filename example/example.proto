@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package example;
 
-option go_package = "kratos_cli_boost/example;example";
+option go_package = "kratos-cli-boost/example;example";
 option java_multiple_files = true;
 option java_package = "example";
 
